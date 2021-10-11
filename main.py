@@ -7,6 +7,7 @@ from time import time, sleep
 
 import cv2 as cv
 import keyboard
+import mouse
 import numpy as np
 import pyautogui as pag
 import win32con
@@ -93,9 +94,10 @@ def detect_players(img):
     return players
 
 
-def click_head(mouseX, mouseY):
+def click_head(mouse_x, mouse_y):
     """use x,y coordinate of detected bots position and move the mouse and click"""
-    pag.click()
+    mouse.move(mouse_x, mouse_y, duration=0.03)
+    mouse.click(button="left")
     print("Mouse clicked\n")
 
 
