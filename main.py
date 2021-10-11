@@ -4,34 +4,14 @@
 ######################################################
 
 import cv2 as cv
+import keyboard
 import numpy as np
 import pyautogui as pag
-from time import time
-import keyboard
 from PIL import ImageGrab
-import win32gui, win32ui, win32con
+from time import time
+from windowcapture import WindowCapture
 
-
-def window_capture:
-    w = 1920  # set this
-    h = 1080  # set this
-    bmpfilenamename = "out.bmp"  # set this
-
-    hwnd = win32gui.FindWindow(None, windowname)
-    wDC = win32gui.GetWindowDC(hwnd)
-    dcObj = win32ui.CreateDCFromHandle(wDC)
-    cDC = dcObj.CreateCompatibleDC()
-    dataBitMap = win32ui.CreateBitmap()
-    dataBitMap.CreateCompatibleBitmap(dcObj, w, h)
-    cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0, 0), (w, h), dcObj, (0, 0), win32con.SRCCOPY)
-    dataBitMap.SaveBitmapFile(cDC, bmpfilenamename)
-
-    # Free Resources
-    dcObj.DeleteDC()
-    cDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, wDC)
-    win32gui.DeleteObject(dataBitMap.GetHandle())
+wincap = WindowCapture('Window Client')
 
 
 def click_head(mouseX, mouseY):
