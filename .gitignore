@@ -1,1 +1,7 @@
-vent/
+/venv
+/.vscode
+__pycache__
+/pydirectinput.egg-info
+/build
+/dist
+test.py

@@ -1,145 +1,70 @@
-######################################################
-# Valorant Aimbot project using opencv and pyautogui #
-# Eric Love                                          #
-######################################################
-
-from time import time, sleep
-
 import cv2 as cv
-import keyboard
-import mouse
 import numpy as np
-import pyautogui as pag
-import win32con
-import win32gui
-import win32ui
-import imutils
-from PIL import ImageGrab
-
+import os
+from time import time
 from windowcapture import WindowCapture
+from detection import Detection
+from vision import Vision
+from bot import ValBot, BotState
 
-TOGGLE_KEY = 'z'
-EXIT_KEY = '`'
+DEBUG = True
 
-body_classifier = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_fullbody.xml')
+# initialize the WindowCapture class
+wincap = WindowCapture(None)
+# load the detector
+detector = Detection(cv.data.haarcascades + 'haarcascade_fullbody.xml')
+# load an empty Vision class
+vision = Vision()
+# initialize the bot
+bot = ValBot((wincap.offset_x, wincap.offset_y), (wincap.w, wincap.h))
 
+wincap.start()
+detector.start()
+bot.start()
 
-def get_screenshot():
-    # define your monitor width and height
-    w, h = 1920, 1080
-
-    # for now we will set hwnd to None to capture the primary monitor
-    # hwnd = win32gui.FindWindow(None, window_name)
-    hwnd = None
-
-    # get the window image data
-    wDC = win32gui.GetWindowDC(hwnd)
-    dcObj = win32ui.CreateDCFromHandle(wDC)
-    cDC = dcObj.CreateCompatibleDC()
-    dataBitMap = win32ui.CreateBitmap()
-    dataBitMap.CreateCompatibleBitmap(dcObj, w, h)
-    cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0, 0), (w, h), dcObj, (0, 0), win32con.SRCCOPY)
-
-    # convert the raw data into a format opencv can read
-    signedIntsArray = dataBitMap.GetBitmapBits(True)
-    img = np.fromstring(signedIntsArray, dtype='uint8')
-    img.shape = (h, w, 4)
-
-    # free resources
-    dcObj.DeleteDC()
-    cDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, wDC)
-    win32gui.DeleteObject(dataBitMap.GetHandle())
-
-    # drop the alpha channel to work with cv.matchTemplate()
-    img = img[..., :3]
-
-    # make image C_CONTIGUOUS to avoid errors with cv.rectangle()
-    img = np.ascontiguousarray(img)
-
-    return img
-
-
-def red_mask_image(img):
-    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
-
-    lower_red = np.array([0, 100, 20])
-    upper_red = np.array([10, 255, 255])
-    mask0 = cv.inRange(img_hsv, lower_red, upper_red)
-
-    lower_red = np.array([160, 100, 20])
-    upper_red = np.array([179, 255, 255])
-    mask1 = cv.inRange(img_hsv, lower_red, upper_red)
-
-    mask = mask0 + mask1
-
-    output_img = img.copy()
-    output_img[np.where(mask == 0)] = 0
-
-    output_hsv = img_hsv.copy()
-    output_hsv[np.where(mask == 0)] = 0
-
-    return output_hsv
-
-
-def detect_players(img):
-    hog = cv.HOGDescriptor()
-    hog.setSVMDetector(cv.HOGDescriptor_getDefaultPeopleDetector())
-
-    img = imutils.resize(img, width=min(1080, img.shape[1]))
-
-    (players, _) = hog.detectMultiScale(img,
-                                        winStride=(5, 5),
-                                        padding=(3, 3),
-                                        scale=1.21)
-    return players
-
-
-def click_head(mouse_x, mouse_y):
-    """use x,y coordinate of detected bots position and move the mouse and click"""
-    mouse.move(mouse_x, mouse_y, duration=0.03)
-    mouse.click(button="left")
-    print("Mouse clicked\n")
-
-
-fps_time = time()
-botOn = True
 while True:
-    if botOn:
-        screenshot = get_screenshot()
-        screenshot = np.array(screenshot)
-        screenshot = cv.GaussianBlur(screenshot, (5, 5), 0)
-        red_masked_screenshot = red_mask_image(screenshot)
 
-        gray = cv.cvtColor(red_masked_screenshot, cv.COLOR_BGR2GRAY)
-        detectedPlayers = body_classifier.detectMultiScale(red_masked_screenshot, 1.1, 0)
+    # if we don't have a screenshot yet, don't run the code below this point yet
+    if wincap.screenshot is None:
+        continue
 
-        # detectedPlayers = detect_players(red_masked_screenshot)
+    # give detector the current screenshot to search for objects in
+    detector.update(wincap.screenshot)
 
-        for (x, y, w, h) in detectedPlayers:
-            cv.rectangle(red_masked_screenshot, (x, y),
-                         (x + w, y + h),
-                         (0, 0, 255), 2)
-            click_head(x, y)
+    # update the bot with the data it needs right now
+    if bot.state == BotState.INITIALIZING:
+        # while bot is waiting to start, go ahead and start giving it some targets to work
+        # on right away when it does start
+        targets = vision.get_click_points(detector.rectangles)
+        bot.update_targets(targets)
+    elif bot.state == BotState.SEARCHING:
+        # when searching for something to click on next, the bot needs to know what the click
+        # points are for the current detection results. it also needs an updated screenshot
+        # to verify the hover tooltip once it has moved the mouse to that position
+        targets = vision.get_click_points(detector.rectangles)
+        bot.update_targets(targets)
+        bot.update_screenshot(wincap.screenshot)
+    elif bot.state == BotState.MOVING:
+        # when moving, we need fresh screenshots to determine when we've stopped moving
+        bot.update_screenshot(wincap.screenshot)
+    elif bot.state == BotState.MINING:
+        # nothing is needed while we wait for the mining to finish
+        pass
 
-        cv.imshow('screenshot', red_masked_screenshot)
+    if DEBUG:
+        # draw the detection results onto the original image
+        detection_image = vision.draw_rectangles(wincap.screenshot, detector.rectangles)
+        # display the images
+        cv.imshow('Matches', detection_image)
 
-        print('FPS {}'.format(1 / (time() - fps_time)))
-        fps_time = time()
-
-        if keyboard.is_pressed(TOGGLE_KEY):
-            botOn = False
-            print("Bot toggled off\n")
-            sleep(0.1)
-    elif not botOn:
-        botOn = False
-        if keyboard.is_pressed(TOGGLE_KEY):
-            botOn = True
-            print("Bot toggled on\n")
-            sleep(0.05)
-
-    if cv.waitKey(1) == ord(EXIT_KEY):
-        print("Exiting...")
+    # press 'q' with the output window focused to exit.
+    # waits 1 ms every loop to process key presses
+    key = cv.waitKey(1)
+    if key == ord('`'):
+        wincap.stop()
+        detector.stop()
+        bot.stop()
         cv.destroyAllWindows()
-        exit(0)
+        break
+
+print('Done.')
