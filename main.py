@@ -12,7 +12,7 @@ DEBUG = True
 # initialize the WindowCapture class
 wincap = WindowCapture(None)
 # load the detector
-detector = Detection(cv.data.haarcascades + 'haarcascade_fullbody.xml')
+detector = Detection('player_cascade.xml')
 # load an empty Vision class
 vision = Vision()
 # initialize the bot

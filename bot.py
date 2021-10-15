@@ -81,19 +81,24 @@ class ValBot:
             screen_x, screen_y = self.get_screen_position(target_pos)
             print('Moving mouse to x:{} y:{}'.format(screen_x, screen_y))
 
+            # test movement and firing, going to have issues with moving mouse in game
+            pyautogui.keyUp('w')
             # move the mouse
-            pyautogui.moveTo(x=screen_x, y=screen_y)
+            pyautogui.keyDown('w')
             # short pause to let the mouse movement complete and allow
             # time for the tooltip to appear
-            sleep(1.250)
-            # confirm limestone tooltip
-            if self.confirm_tooltip(target_pos):
-                print('Click on confirmed target at x:{} y:{}'.format(screen_x, screen_y))
-                found_limestone = True
-                pyautogui.click()
-                # save this position to the click history
-                self.click_history.append(target_pos)
-            target_i += 1
+            sleep(1)
+            # # confirm limestone tooltip
+            # if self.confirm_tooltip(target_pos):
+            #     print('Click on confirmed target at x:{} y:{}'.format(screen_x, screen_y))
+            #     found_limestone = True
+            #     pyautogui.click()
+            #     # save this position to the click history
+            #     self.click_history.append(target_pos)
+            # target_i += 1
+            pyautogui.mouseDown(button="right")
+            pyautogui.click(button='left', clicks=8, interval=0.05)
+            pyautogui.mouseUp(button="right")
 
         return found_limestone
 
