@@ -80,25 +80,9 @@ class ValBot:
             target_pos = targets[target_i]
             screen_x, screen_y = self.get_screen_position(target_pos)
             print('Moving mouse to x:{} y:{}'.format(screen_x, screen_y))
-
-            # test movement and firing, going to have issues with moving mouse in game
-            pyautogui.keyUp('w')
-            # move the mouse
-            pyautogui.keyDown('w')
-            # short pause to let the mouse movement complete and allow
-            # time for the tooltip to appear
-            sleep(1)
-            # # confirm limestone tooltip
-            # if self.confirm_tooltip(target_pos):
-            #     print('Click on confirmed target at x:{} y:{}'.format(screen_x, screen_y))
-            #     found_limestone = True
-            #     pyautogui.click()
-            #     # save this position to the click history
-            #     self.click_history.append(target_pos)
-            # target_i += 1
-            pyautogui.mouseDown(button="right")
-            pyautogui.click(button='left', clicks=8, interval=0.05)
-            pyautogui.mouseUp(button="right")
+            coords = ""
+            coords += HidController.parse_cords("X", x)
+            HidController.endcode_and_send_mouse(coords)
 
         return found_limestone
 
@@ -149,23 +133,8 @@ class ValBot:
 
         return targets
 
-    def confirm_tooltip(self, target_position):
-        # check the current screenshot for the limestone tooltip using match template
-        result = cv.matchTemplate(self.screenshot, self.limestone_tooltip, cv.TM_CCOEFF_NORMED)
-        # get the best match postition
-        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(result)
-        # if we can closely match the tooltip image, consider the object found
-        if max_val >= self.TOOLTIP_MATCH_THRESHOLD:
-            # print('Tooltip found in image at {}'.format(max_loc))
-            # screen_loc = self.get_screen_position(max_loc)
-            # print('Found on screen at {}'.format(screen_loc))
-            # mouse_position = pyautogui.position()
-            # print('Mouse on screen at {}'.format(mouse_position))
-            # offset = (mouse_position[0] - screen_loc[0], mouse_position[1] - screen_loc[1])
-            # print('Offset calculated as x: {} y: {}'.format(offset[0], offset[1]))
-            # the offset I always got was Offset calculated as x: -22 y: -29
-            return True
-        # print('Tooltip not found.')
+    def buy_weapons(self, creds):
+        # make buy selection, given the tracked amount of creds available
         return False
 
     def click_backtrack(self):
@@ -186,14 +155,6 @@ class ValBot:
         # short pause to let the mouse movement complete
         sleep(0.500)
         pyautogui.click()
-
-    # translate a pixel position on a screenshot image to a pixel position on the screen.
-    # pos = (x, y)
-    # WARNING: if you move the window being captured after execution is started, this will
-    # return incorrect coordinates, because the window position is only calculated in
-    # the WindowCapture __init__ constructor.
-    def get_screen_position(self, pos):
-        return (pos[0] + self.window_offset[0], pos[1] + self.window_offset[1])
 
     # threading methods
 
