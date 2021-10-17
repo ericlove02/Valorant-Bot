@@ -23,6 +23,7 @@ wincap.start()
 detector.start()
 bot.start()
 
+loop_time = time()
 while True:
 
     # if we don't have a screenshot yet, don't run the code below this point yet
@@ -57,7 +58,9 @@ while True:
         # draw the detection results onto the original image
         detection_image = vision.draw_rectangles(wincap.screenshot, detector.rectangles)
         # display the images
-        # cv.imshow('Matches', detection_image)
+        cv.imshow('Matches', detection_image)
+        print('FPS {}'.format(1 / (time() - loop_time)))
+        loop_time = time()
 
     # press 'q' with the output window focused to exit.
     # waits 1 ms every loop to process key presses

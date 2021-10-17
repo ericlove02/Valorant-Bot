@@ -12,8 +12,8 @@ class Vision:
         # Loop over all the rectangles
         for (x, y, w, h) in rectangles:
             # Determine the center position
-            center_x = x + int(w/2)
-            center_y = y + int(h/2)
+            center_x = x + int(w / 2)
+            center_y = y + int(h / 2)
             # Save the points
             points.append((center_x, center_y))
 
@@ -25,14 +25,15 @@ class Vision:
         # these colors are actually BGR
         line_color = (0, 255, 0)
         line_type = cv.LINE_4
-
+        # set changing during iteration
         for (x, y, w, h) in rectangles:
+            inloop = True
             # determine the box positions
             top_left = (x, y)
             bottom_right = (x + w, y + h)
             # draw the box
             cv.rectangle(haystack_img, top_left, bottom_right, line_color, lineType=line_type)
-
+        inLoop = False
         return haystack_img
 
     # given a list of [x, y] positions and a canvas image to draw on, return an image with all

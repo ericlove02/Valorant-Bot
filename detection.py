@@ -7,7 +7,7 @@ from matplotlib import cm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from time import sleep
+from time import sleep, time
 import pandas as pd
 from termcolor import colored
 
@@ -42,9 +42,12 @@ class Detection:
     # else:
     #     print(colored("[!] CUDA ACCELERATION IS UNAVAILABLE", "red"))
     #     print(colored("[!] Check your PyTorch installation, else performance will be very poor", "red"))
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print("modeling to: " + device)
+    model.to(device)
     model.conf = 0.45  # base confidence threshold (or base detection (0-1)
     model.iou = 0.45  # NMS IoU (0-1)
-    print("model thresholds set")
+    print("model config complete")
 
     def __init__(self, model_file_path):
         # create a thread lock object
@@ -67,6 +70,7 @@ class Detection:
 
     def run(self):
         # TODO: you can write your own time/iterations calculation to determine how fast this is
+        loop_time = time()
         while not self.stopped:
             if self.screenshot is not None:
                 # do object detection
@@ -98,7 +102,8 @@ class Detection:
                         self.rectangles.add((x1, y1, width, height))
                 else:
                     print("no players detected")
-
+                print('Detecting every {} seconds\n'.format(time() - loop_time))
+                loop_time = time()
 
                 # lock the thread while updating the results
                 self.lock.acquire()
