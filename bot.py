@@ -3,6 +3,8 @@ import pyautogui
 from time import sleep, time
 from threading import Thread, Lock
 from math import sqrt
+# temp for testing
+import mouse
 
 
 class BotState:
@@ -80,9 +82,10 @@ class ValBot:
             target_pos = targets[target_i]
             screen_x, screen_y = self.get_screen_position(target_pos)
             print('Moving mouse to x:{} y:{}'.format(screen_x, screen_y))
-            coords = ""
-            coords += HidController.parse_cords("X", x)
-            HidController.endcode_and_send_mouse(coords)
+            # coords = ""
+            # coords += HidController.parse_cords("X", x)
+            # HidController.endcode_and_send_mouse(coords)
+            mouse.move(screen_x, screen_y)
 
         return found_limestone
 

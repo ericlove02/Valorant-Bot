@@ -56,9 +56,8 @@ while True:
     if DEBUG:
         # draw the detection results onto the original image
         detection_image = vision.draw_rectangles(wincap.screenshot, detector.rectangles)
-        detection_image = wincap.screenshot
         # display the images
-        cv.imshow('Matches', detection_image)
+        # cv.imshow('Matches', detection_image)
 
     # press 'q' with the output window focused to exit.
     # waits 1 ms every loop to process key presses
