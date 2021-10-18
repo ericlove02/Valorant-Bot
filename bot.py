@@ -4,7 +4,7 @@ from time import sleep, time
 from threading import Thread, Lock
 from math import sqrt
 # temp for testing
-# import mousew
+import mouse
 import keyboard
 
 
@@ -41,41 +41,48 @@ class ValBot:
         # mark the time at which this started so we know when to complete it
         self.state = BotState.INITIALIZING
         self.timestamp = time()
+        sleep(5)
 
-    def move_mouse(self, x, y, duration=.01):
+    def move_mouse(self):
+        return True
+
+    def move_mouseto(self, x, y, duration=.01):
         # moves mouse to desired location, returns true if success and false w error if unsuccessful
         # temporarily using mouse library for testing
-        # mouse.move(x, y, duration=duration)
+        mouse.move(x, y, duration=duration)
         return True
 
     def click_mouse(self, button="left"):
         # mouse.click(button=button)
         pass
 
-    def click_target(self, coords):
+    def shoot_target(self, targets):
         # get target from main detection to click on
         # might need to make more complex if targets are moving
         # need to pick best target if multiple given
-        x, y = coords[0]
-        coords.pop(0)
-        self.move_mouse(x, y)
-        # self.click_mouse()
-        return coords
-
-    def shoot_target(self, coords):
-        # get target from main detection to click on
-        # might need to make more complex if targets are moving
-        # need to pick best target if multiple given
-        x, y = coords[0]
-        coords.pop(0)
-        self.move_mouse(x, y)
+        target = self.get_best_targets(targets)
+        x, y, height = target
+        targets = []  # clear coords
+        self.move_mouseto(x, y)
         keyboard.press("left ctrl")
-        # self.click_mouse()
+        self.click_mouse()
         sleep(.1)
         keyboard.release("left ctrl")
         self.ammo -= 1
         print("Shot fired at: " + str(x) + ", " + str(y) + ". Ammo: " + str(self.ammo))
-        return coords
+        return targets
+
+    def get_best_targets(self, targets):
+        # return the tallest target, closer targets will be taller
+        # x, y, height = targets[0]
+        best_target = None
+        for (x, y, height) in targets:
+            if best_target is None:
+                best_target = [x, y, height]
+            elif height >= best_target[2]:
+                best_target = [x, y, height]
+        print("Found best target with height " + str(best_target[2]))
+        return best_target
 
     def reload(self):
         keyboard.press_and_release('r')
@@ -109,10 +116,10 @@ class ValBot:
                 if self.targets:
                     self.state = BotState.SHOOTING
                     self.targets = self.shoot_target(self.targets)
-                elif self.ammo <= 5:
+                elif self.ammo <= 8:  # if there are no targets in site and ammo is low
                     self.state = BotState.RELOADING
                     self.ammo = self.reload()
                 else:
                     # if nothing in view, pan around for something
-                    # self.move_mouse()
+                    #self.move_mouse()
                     pass

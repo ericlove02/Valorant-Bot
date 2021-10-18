@@ -23,6 +23,7 @@ from threading import Thread, Lock
 from movement import Movement
 
 DEBUG = True
+IN_GAME = False
 
 # initialize the WindowCapture class
 wincap = WindowCapture(1)
@@ -31,7 +32,8 @@ wincap = WindowCapture(1)
 # vision = Vision()
 # initialize the bot
 bot = ValBot()
-movement = Movement()
+if IN_GAME:
+    movement = Movement()
 
 
 def main():
@@ -64,7 +66,7 @@ def main():
 
         frame = wincap.screenshot
         results = model(frame)
-        heads = []
+        targets = []
         if len(results.xyxy[0]) != 0:
             print(colored("PLAYER DETECTED, " + str(len(results.xyxy[0])), "green"))
             for *box, conf, cls in results.xyxy[0]:
@@ -74,13 +76,14 @@ def main():
                 width = x2 - x1
                 height = y2 - y1
                 head = [int(x1 + width/2), int(y1 + height/12)]
+                head_and_height = [int(x1 + width/2), int(y1 + height/12), height]
                 # player detected with head at {head}
-                heads.append(head)
+                targets.append(head_and_height)
                 if DEBUG:
                     cv.rectangle(frame, x1y1, x2y2, (244, 113, 115), 2)
                     cv.circle(frame, head, int(height/12), (0, 0, 255), 1)
                     cv.putText(frame, f"{int(conf * 100)}%", x1y1, cv.FONT_HERSHEY_DUPLEX, 0.5, (244, 113, 116), 2)
-            bot.update_targets(heads)
+            bot.update_targets(targets)
 
         bot.update_screenshot(wincap.screenshot)
         if DEBUG:
@@ -110,7 +113,8 @@ def main():
         if key == ord('`'):
             wincap.stop()
             bot.stop()
-            movement.stop()
+            if IN_GAME:
+                movement.stop()
             cv.destroyAllWindows()
             print('Done.')
             exit(0)
@@ -124,5 +128,6 @@ wincap.start()
 print("Window capture started")
 bot.start()
 print("Bot main started")
-movement.start()
-print("Bot movement started")
+if IN_GAME:
+    movement.start()
+    print("Bot movement started")
