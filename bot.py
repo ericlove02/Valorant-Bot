@@ -40,21 +40,34 @@ class ValBot:
         self.state = BotState.INITIALIZING
         self.timestamp = time()
 
-
-
     def move_mouse(self, x, y, duration=.01):
         # moves mouse to desired location, returns true if success and false w error if unsuccessful
         # temporarily using mouse library for testing
         mouse.move(x, y, duration=duration)
         return True
 
+    def click_mouse(self, button="left"):
+        mouse.click(button=button)
+
     def click_target(self, coords):
         # get target from main detection to click on
         # might need to make more complex if targets are moving
-        x, y = coords
-        print(x, y)
+        # need to pick best target if multiple given
+        x, y = coords[0]
+        coords.pop(0)
         self.move_mouse(x, y)
-        return True
+        # self.click_mouse()
+        return coords
+
+    def shoot_target(self, coords):
+        # get target from main detection to click on
+        # might need to make more complex if targets are moving
+        # need to pick best target if multiple given
+        x, y = coords[0]
+        coords.pop(0)
+        self.move_mouse(x, y)
+        # self.click_mouse()
+        return coords
 
     # threading methods
     def update_targets(self, targets):
@@ -78,5 +91,8 @@ class ValBot:
     # main logic controller
     def run(self):
         while not self.stopped:
-            if self.targets:
-                print(self.targets)
+            while True:
+                sleep(.001)
+                if self.targets:
+                    self.targets = self.click_target(self.targets)
+
