@@ -1,7 +1,9 @@
 /venv
 /.vscode
+/.idea
 __pycache__
 /pydirectinput.egg-info
 /build
 /dist
 test.py
+player_cascade-old.xml

@@ -26,14 +26,15 @@ class Vision:
         line_color = (0, 255, 0)
         line_type = cv.LINE_4
         # set changing during iteration
-        for (x, y, w, h) in rectangles:
+        for (x, y, w, h, conf) in rectangles:
             inloop = True
             # determine the box positions
             top_left = (x, y)
             bottom_right = (x + w, y + h)
             # draw the box
             cv.rectangle(haystack_img, top_left, bottom_right, line_color, lineType=line_type)
-        inLoop = False
+            cv.putText(haystack_img, f"{int(conf * 100)}%", top_left, cv.FONT_HERSHEY_DUPLEX, 0.5, line_color, 2)
+
         return haystack_img
 
     # given a list of [x, y] positions and a canvas image to draw on, return an image with all

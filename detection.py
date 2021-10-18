@@ -32,16 +32,16 @@ class Detection:
 
     model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt', force_reload=True)
     print("model loaded")
-    # if torch.cuda.is_available():
-    #     if "16" in torch.cuda.get_device_name(
-    #             torch.cuda.current_device()):  # known error with the 1650 GPUs where detection doesn't work
-    #         print(colored("[!] CUDA ACCELERATION IS UNAVAILABLE (ISSUE WITH 1650/1660 GPUs)", "red"))
-    #         exit(1)
-    #     else:
-    #         print(colored("CUDA ACCELERATION [ENABLED]", "green"))
-    # else:
-    #     print(colored("[!] CUDA ACCELERATION IS UNAVAILABLE", "red"))
-    #     print(colored("[!] Check your PyTorch installation, else performance will be very poor", "red"))
+    if torch.cuda.is_available():
+        if "16" in torch.cuda.get_device_name(
+                torch.cuda.current_device()):  # known error with the 1650 GPUs where detection doesn't work
+            print(colored("[!] CUDA ACCELERATION IS UNAVAILABLE (ISSUE WITH 1650/1660 GPUs)", "red"))
+            exit(1)
+        else:
+            print(colored("CUDA ACCELERATION [ENABLED]", "green"))
+    else:
+        print(colored("[!] CUDA ACCELERATION IS UNAVAILABLE", "red"))
+        print(colored("[!] Check your PyTorch installation, else performance will be very poor", "red"))
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print("modeling to: " + device)
     model.to(device)
@@ -99,7 +99,7 @@ class Detection:
                         x1, y1, x2, y2, conf = *x1y1, *x2y2, conf.item()
                         width = x2 - x1
                         height = y2 - y1
-                        self.rectangles.add((x1, y1, width, height))
+                        self.rectangles.add((x1, y1, width, height, conf))
                 else:
                     print("no players detected")
                 print('Detecting every {} seconds\n'.format(time() - loop_time))
