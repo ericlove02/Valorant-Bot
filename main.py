@@ -20,8 +20,9 @@ from termcolor import colored
 import mss
 from datetime import datetime
 from threading import Thread, Lock
+from movement import Movement
 
-DEBUG = False
+DEBUG = True
 
 # initialize the WindowCapture class
 wincap = WindowCapture(1)
@@ -30,6 +31,7 @@ wincap = WindowCapture(1)
 # vision = Vision()
 # initialize the bot
 bot = ValBot()
+movement = Movement()
 
 
 def main():
@@ -117,8 +119,10 @@ def main():
 
 t = Thread(target=main)
 t.start()
-print("Main thread started")
+print("Main detection started")
 wincap.start()
-print("Wincap started")
+print("Window capture started")
 bot.start()
-print("Bot started")
+print("Bot main started")
+movement.start()
+print("Bot movement started")

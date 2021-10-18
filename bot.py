@@ -4,15 +4,15 @@ from time import sleep, time
 from threading import Thread, Lock
 from math import sqrt
 # temp for testing
-import mouse
+# import mousew
+import keyboard
 
 
 class BotState:
     INITIALIZING = 0
-    SEARCHING = 1
+    SHOOTING = 1
     MOVING = 2
-    SHOOTING = 3
-    BACKTRACKING = 4
+    RELOADING = 3
 
 
 class ValBot:
@@ -30,6 +30,8 @@ class ValBot:
     window_h = 0
     limestone_tooltip = None
     click_history = []
+    end_time = None
+    ammo = 25  # assuming Vandal is bought for each practice round
 
     def __init__(self):
         # create a thread lock object
@@ -43,11 +45,12 @@ class ValBot:
     def move_mouse(self, x, y, duration=.01):
         # moves mouse to desired location, returns true if success and false w error if unsuccessful
         # temporarily using mouse library for testing
-        mouse.move(x, y, duration=duration)
+        # mouse.move(x, y, duration=duration)
         return True
 
     def click_mouse(self, button="left"):
-        mouse.click(button=button)
+        # mouse.click(button=button)
+        pass
 
     def click_target(self, coords):
         # get target from main detection to click on
@@ -66,8 +69,18 @@ class ValBot:
         x, y = coords[0]
         coords.pop(0)
         self.move_mouse(x, y)
+        keyboard.press("left ctrl")
         # self.click_mouse()
+        sleep(.1)
+        keyboard.release("left ctrl")
+        self.ammo -= 1
+        print("Shot fired at: " + str(x) + ", " + str(y) + ". Ammo: " + str(self.ammo))
         return coords
+
+    def reload(self):
+        keyboard.press_and_release('r')
+        print("reloaded")
+        return 25
 
     # threading methods
     def update_targets(self, targets):
@@ -94,5 +107,12 @@ class ValBot:
             while True:
                 sleep(.001)
                 if self.targets:
-                    self.targets = self.click_target(self.targets)
-
+                    self.state = BotState.SHOOTING
+                    self.targets = self.shoot_target(self.targets)
+                elif self.ammo <= 5:
+                    self.state = BotState.RELOADING
+                    self.ammo = self.reload()
+                else:
+                    # if nothing in view, pan around for something
+                    # self.move_mouse()
+                    pass
