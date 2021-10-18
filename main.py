@@ -3,7 +3,6 @@ import numpy as np
 import os
 from windowcapture import WindowCapture
 # from detection import Detection
-from vision import Vision
 from bot import ValBot, BotState
 from termcolor import colored
 import torch
@@ -80,29 +79,29 @@ def main():
                 # player detected with head at {head}
                 targets.append(head_and_height)
                 if DEBUG:
+                    # draw the detection results onto the original image
                     cv.rectangle(frame, x1y1, x2y2, (244, 113, 115), 2)
                     cv.circle(frame, head, int(height/12), (0, 0, 255), 1)
-                    cv.putText(frame, f"{int(conf * 100)}%", x1y1, cv.FONT_HERSHEY_DUPLEX, 0.5, (244, 113, 116), 2)
+                    cv.putText(frame, f"{int(conf * 100)}%", x1y1, cv.FONT_HERSHEY_DUPLEX, 1, (244, 113, 116), 2)
             bot.update_targets(targets)
 
         bot.update_screenshot(wincap.screenshot)
         if DEBUG:
-            cv.putText(frame, "Players Detected: {0}".format(len(results.xyxy[0])), (5, 55), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 200, 0), 2)
+            # draw useful information onto image
+            cv.putText(frame, "Players Detected: {0}".format(len(results.xyxy[0])), (5, 80), cv.FONT_HERSHEY_DUPLEX, 1.2, (0, 200, 0), 2)
             fps = 1 / (time() - loop_time)
             if fps <= 5:
-                cv.putText(frame, "LOW FPS WARNING", (120, 25), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2,
+                cv.putText(frame, "LOW FPS WARNING", (190, 45), cv.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 2,
                            cv.LINE_AA)
                 print(colored("LOW FPS WARNING", "red"))
-
-        if DEBUG:
-            # draw the detection results onto the original image
-            # detection_image = vision.draw_rectangles(wincap.screenshot, detector.rectangles)
-            # detection_image = wincap.screenshot
-            # display the images
-            cv.putText(frame, "FPS: {0}".format(str(int(fps))), (5, 25), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 100, 0), 2,
+            cv.putText(frame, "FPS: {0}".format(str(int(fps))), (5, 45), cv.FONT_HERSHEY_SIMPLEX, 1.5, (255, 100, 0), 2,
                        cv.LINE_AA)
-            cv.putText(frame, str(datetime.now().strftime("%H:%M:%S")), (5, 1430), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 100, 0), 2,
+            cv.putText(frame, str(datetime.now().strftime("%H:%M:%S")), (5, 1430), cv.FONT_HERSHEY_SIMPLEX, 1.5,
+                       (255, 100, 0), 2,
                        cv.LINE_AA)
+            # resize and display the image
+            dim = (1080, 608)
+            frame = cv.resize(frame, dim)
             cv.imshow('Matches', frame)
 
             loop_time = time()

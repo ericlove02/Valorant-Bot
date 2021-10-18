@@ -44,15 +44,18 @@ class ValBot:
         sleep(5)
 
     def move_mouse(self):
+        # TODO: write functions to proxy arduino and move mouse
         return True
 
     def move_mouseto(self, x, y, duration=.01):
+        # TODO: write functions to proxy arduino and move mouse
         # moves mouse to desired location, returns true if success and false w error if unsuccessful
         # temporarily using mouse library for testing
-        mouse.move(x, y, duration=duration)
+        # mouse.move(x, y, duration=duration)
         return True
 
     def click_mouse(self, button="left"):
+        # TODO: write functions to proxy arduino and move mouse
         # mouse.click(button=button)
         pass
 
@@ -81,10 +84,11 @@ class ValBot:
                 best_target = [x, y, height]
             elif height >= best_target[2]:
                 best_target = [x, y, height]
-        print("Found best target with height " + str(best_target[2]))
+        print("Found best target with height " + str(best_target[2]) + ", at " + str(best_target[0]) + ", " + str(best_target[1]))
         return best_target
 
     def reload(self):
+        # TODO: fix so not reloading too often, need better way to track ammo
         keyboard.press_and_release('r')
         print("reloaded")
         return 25
