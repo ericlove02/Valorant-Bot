@@ -84,7 +84,7 @@ def main():
 
         bot.update_screenshot(wincap.screenshot)
         if DEBUG:
-            cv.putText(frame, "Players Detected: {0}".format(len(results.xyxy[0])), (5, 55), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 200, 0), 1)
+            cv.putText(frame, "Players Detected: {0}".format(len(results.xyxy[0])), (5, 55), cv.FONT_HERSHEY_DUPLEX, 0.8, (0, 200, 0), 2)
             fps = 1 / (time() - loop_time)
             if fps <= 5:
                 cv.putText(frame, "LOW FPS WARNING", (120, 25), cv.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2,
@@ -110,15 +110,15 @@ def main():
         if key == ord('`'):
             wincap.stop()
             bot.stop()
+            movement.stop()
             cv.destroyAllWindows()
-            break
-
-    print('Done.')
-    exit(0)
+            print('Done.')
+            exit(0)
 
 
-t = Thread(target=main)
-t.start()
+main = Thread(target=main)
+
+main.start()
 print("Main detection started")
 wincap.start()
 print("Window capture started")
