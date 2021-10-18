@@ -1,3 +1,5 @@
+# DEPRECATED, content used in main to increase FPS
+
 import cv2 as cv
 from threading import Thread, Lock
 from PIL import Image
@@ -21,6 +23,7 @@ class Detection:
     # properties
     cascade = None
     screenshot = None
+    loop_time = time()
 
     # pixel search color properties
     r_min = 20
@@ -73,24 +76,9 @@ class Detection:
         loop_time = time()
         while not self.stopped:
             if self.screenshot is not None:
-                # do object detection
-                # self.rectangles = self.cascade.detectMultiScale(self.screenshot)
-                # img = self.screenshot
-                # img = np.resize(img, (30, 30))
-                # img = Image.fromarray(np.uint8(cm.gist_earth(img) * 255))
-                # rgb = img.convert('RGB')
-                # for x in range(img.size[0]):
-                #     for y in range(img.size[1]):
-                #         r, g, b = rgb.getpixel((x, y))
-                #         print(str(r) + ", " + str(b) + ", " + str(g))
-                #         if self.r_min <= r <= self.r_max and self.b_min <= b <= self.b_max and self.g_min <= g <= self.g_max:
-                #             print("\nFOUND\n")
-                #             self.rectangles.add((x, y, 30, 30))
                 frame = self.screenshot
-                print("recieved screenshot")
                 results = self.model(frame)
-                print("received results")
-
+                print('FPS {}\n'.format(1 / (time() - loop_time)))
                 if len(results.xyxy[0]) != 0:
                     print(colored("PLAYER DETECTED, " + str(len(results.xyxy[0])), "green"))
                     for *box, conf, cls in results.xyxy[0]:
@@ -99,11 +87,6 @@ class Detection:
                         x1, y1, x2, y2, conf = *x1y1, *x2y2, conf.item()
                         width = x2 - x1
                         height = y2 - y1
-                        self.rectangles.add((x1, y1, width, height, conf))
-                else:
-                    print("no players detected")
-                print('Detecting every {} seconds\n'.format(time() - loop_time))
-                loop_time = time()
 
                 # lock the thread while updating the results
                 self.lock.acquire()

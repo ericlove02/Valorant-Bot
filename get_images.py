@@ -1,3 +1,5 @@
+# used to get images to create cascade model
+
 from icrawler.builtin import GoogleImageCrawler
 classes = ['valorant agents character models']
 number = 100

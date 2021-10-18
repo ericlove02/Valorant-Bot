@@ -1,7 +1,7 @@
 /venv
 /.vscode
 /.idea
-__pycache__
+/__pycache__
 /pydirectinput.egg-info
 /build
 /dist

@@ -1,3 +1,5 @@
+# DEPRECATED, content used in main to increase FPS
+
 import cv2 as cv
 import numpy as np
 
