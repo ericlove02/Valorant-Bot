@@ -1,9 +1,9 @@
+<div id="top"></div>     
 
 # Valorant-Bot
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-<div id="top"></div>
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
