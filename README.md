@@ -49,7 +49,7 @@ For the bot to complete all of these actions at the same time, this program uses
 ### Prerequisites
 
 ```sh
-   npm install
+   py install pip
    ```
 ### Installation
 1. Clone the repo
@@ -73,6 +73,7 @@ For the bot to complete all of these actions at the same time, this program uses
 https://user-images.githubusercontent.com/53005525/138217033-50f1d75c-08e2-4c0b-ae6b-887c768ab35a.mp4
 
 https://user-images.githubusercontent.com/53005525/138217040-2e148102-ddbc-401d-9f45-b225a198affa.mp4
+
 Screen recording the output significantly dropped the frame rate.
 <!-- CONTACT -->
 ## Contact
